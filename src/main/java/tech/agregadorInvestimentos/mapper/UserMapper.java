@@ -11,6 +11,4 @@ public abstract class UserMapper {
 
     public abstract User mapFrom(CreateUserDto createUserDto);
 
-
-
 }

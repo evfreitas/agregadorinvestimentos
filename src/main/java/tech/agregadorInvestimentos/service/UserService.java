@@ -1,6 +1,5 @@
 package tech.agregadorInvestimentos.service;
 
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import tech.agregadorInvestimentos.controller.UpdateUserDto;
 import tech.agregadorInvestimentos.entity.User;

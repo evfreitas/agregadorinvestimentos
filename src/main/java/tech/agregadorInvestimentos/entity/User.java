@@ -1,6 +1,7 @@
 package tech.agregadorInvestimentos.entity;
 
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.CreationTimestamp;
@@ -13,6 +14,7 @@ import java.util.UUID;
 @Table(name ="tb_users")
 @Data
 @NoArgsConstructor
+@AllArgsConstructor
 public class User {
 
     @Id
@@ -34,7 +36,7 @@ public class User {
     @UpdateTimestamp
     private Instant updateTimestamp;
 
-    public User(UUID userId) {
+/*    public User(UUID userId) {
         this.userId = userId.randomUUID();
-    }
+    }*/
 }
