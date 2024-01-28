@@ -1,10 +1,8 @@
 package tech.agregadorInvestimentos.controller;
 
-import org.mapstruct.control.MappingControl;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import tech.agregadorInvestimentos.entity.User;
-import tech.agregadorInvestimentos.mapper.UserMapper;
 import tech.agregadorInvestimentos.service.UserService;
 
 import java.net.URI;
@@ -24,9 +22,7 @@ public class UserController {
     @PostMapping
     public ResponseEntity<User> createUser(@RequestBody CreateUserDto createUserDto){
 
-        User userEntity = UserMapper.INSTANCE.mapFrom(createUserDto);
-
-        var userId = userService.createUser(userEntity);
+        var userId = userService.createUser(createUserDto);
 
         return ResponseEntity.created(URI.create("v1/users/" + userId.toString())).build();
 

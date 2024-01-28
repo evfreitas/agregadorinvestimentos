@@ -1,10 +1,12 @@
 package tech.agregadorInvestimentos.service;
 
 import org.springframework.stereotype.Service;
+import tech.agregadorInvestimentos.controller.CreateUserDto;
 import tech.agregadorInvestimentos.controller.UpdateUserDto;
 import tech.agregadorInvestimentos.entity.User;
 import tech.agregadorInvestimentos.repository.UserRepository;
 
+import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -18,9 +20,18 @@ public class UserService {
         this.userRepository = userRepository;
     }
 
-    public UUID createUser (User user) {
+    public UUID createUser (CreateUserDto createUserDto) {
 
-        var userSaved = userRepository.save(user);
+        // DTO -> ENTITY
+        var entity = new User(
+                UUID.randomUUID(),
+                createUserDto.username(),
+                createUserDto.email(),
+                createUserDto.password(),
+                Instant.now(),
+                null);
+
+        var userSaved = userRepository.save(entity);
 
         return userSaved.getUserId();
     };

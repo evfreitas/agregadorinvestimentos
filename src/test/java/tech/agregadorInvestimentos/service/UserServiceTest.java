@@ -14,11 +14,13 @@ import tech.agregadorInvestimentos.entity.User;
 import tech.agregadorInvestimentos.repository.UserRepository;
 
 import java.time.Instant;
+import java.util.Optional;
 import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.doThrow;
 
 @ExtendWith(MockitoExtension.class)
 class UserServiceTest {
@@ -32,6 +34,9 @@ class UserServiceTest {
     @Captor
     private ArgumentCaptor<User> userArgumentCaptor;
 
+    @Captor
+    private ArgumentCaptor<UUID> uuidArgumentCaptor;
+
     @Nested
     class createUser{
 
@@ -40,17 +45,20 @@ class UserServiceTest {
         void deveCriarUsuario(){
 
             //Arrange
-            var input = new User(UUID.randomUUID(), "username",
+            var user = new User(UUID.randomUUID(), "teste",
                                                     "email@email.com",
                                                     "123", Instant.now(),null);
-            doReturn(input).when(userRepository).save(userArgumentCaptor.capture());
+            doReturn(user).when(userRepository).save(userArgumentCaptor.capture()); //captura o que está passando no save para validar depois
+            var input = new CreateUserDto("teste","email@email.com","123");
 
             //Act
             UUID output = userService.createUser(input);
 
             //Assert
             assertNotNull(output);
-            assertEquals(input.getUsername(), userArgumentCaptor.getValue().getUsername());
+            assertEquals(input.username(), userArgumentCaptor.getValue().getUsername());
+            assertEquals(input.email(), userArgumentCaptor.getValue().getEmail());
+            assertEquals(input.password(), userArgumentCaptor.getValue().getPassword());
 
         }
 
@@ -59,16 +67,33 @@ class UserServiceTest {
         void deveRetornarRetornarExcecaoQuandoHouverErro(){
 
             //Arrange
-            var input = new User(UUID.randomUUID(), "username",
-                                                    "email@email.com",
-                                                    "123", Instant.now(),null);
-            doReturn(new RuntimeException()).when(userRepository).save(userArgumentCaptor.capture());
+            doThrow(new RuntimeException()).when(userRepository).save(any());
+            var input = new CreateUserDto("teste","email@email.com","123");
 
             //Act & Assert
             assertThrows(RuntimeException.class, () -> userService.createUser(input)); // () -> função quando executar
-            assertEquals(input.getUsername(), userArgumentCaptor.getValue().getUsername());
         }
     }
 
+    @Nested
+    class getUserById{
 
+        @Test
+        @DisplayName("Deve consultar um usuário pelo Id com sucesso")
+        void deveConsultarUsuarioPeloId() {
+
+            //Arrange
+            var user = new User(UUID.randomUUID(), "teste",
+                    "email@email.com",
+                    "123", Instant.now(),null);
+            doReturn(Optional.of(user)).when(userRepository).findById(uuidArgumentCaptor.capture()); //trocou o tipo do campo que vai ser capturado
+
+            //act
+            Optional<User> output = userService.getUserById(user.getUserId());
+
+            //Assert
+            assertTrue(output.isPresent());
+            assertEquals(output.get().getUserId(), uuidArgumentCaptor.getValue());
+        }
+    }
 }
