@@ -4,6 +4,8 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Captor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -27,6 +29,9 @@ class UserServiceTest {
     @InjectMocks
     private UserService userService;
 
+    @Captor
+    private ArgumentCaptor<User> userArgumentCaptor;
+
     @Nested
     class createUser{
 
@@ -35,17 +40,17 @@ class UserServiceTest {
         void deveCriarUsuario(){
 
             //Arrange
-            var input = new User(UUID.randomUUID(), "username", "email@email.com", "123", Instant.now(),null);
-            doReturn(input).when(userRepository).save(any());
-
-            //var userDto = new CreateUserDto("", "", "");
-            //var input = new User();
+            var input = new User(UUID.randomUUID(), "username",
+                                                    "email@email.com",
+                                                    "123", Instant.now(),null);
+            doReturn(input).when(userRepository).save(userArgumentCaptor.capture());
 
             //Act
             UUID output = userService.createUser(input);
 
             //Assert
             assertNotNull(output);
+            assertEquals(input.getUsername(), userArgumentCaptor.getValue().getUsername());
 
         }
 
@@ -54,18 +59,14 @@ class UserServiceTest {
         void deveRetornarRetornarExcecaoQuandoHouverErro(){
 
             //Arrange
-            var input = new User(UUID.randomUUID(), "username", "email@email.com", "123", Instant.now(),null);
-            doReturn(new RuntimeException()).when(userRepository).save(any());
+            var input = new User(UUID.randomUUID(), "username",
+                                                    "email@email.com",
+                                                    "123", Instant.now(),null);
+            doReturn(new RuntimeException()).when(userRepository).save(userArgumentCaptor.capture());
 
-            //var userDto = new CreateUserDto("", "", "");
-            //var input = new User();
-
-            //Act
-            UUID output = userService.createUser(input);
-
-            //Assert
-            assertNotNull(output);
-
+            //Act & Assert
+            assertThrows(RuntimeException.class, () -> userService.createUser(input)); // () -> função quando executar
+            assertEquals(input.getUsername(), userArgumentCaptor.getValue().getUsername());
         }
     }
 
